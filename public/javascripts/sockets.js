@@ -33,7 +33,6 @@ socket.on('insertTextAt', function (data) {
     if (key === "Delete"){
       textArea.replaceRange("", {line, ch},{line, ch : ch + 1});
     }
-    else key = ""
   } else {
     textArea.replaceRange(key, {line, ch});
   }
@@ -48,9 +47,5 @@ socket.on('error', function (data) {
 });
 
 socket.on('connect_failed', function (data) {
-    console.log(data || 'connect_failed');
-});
-
-socket.on('LogThis', function (data) {
     console.log(data || 'connect_failed');
 });

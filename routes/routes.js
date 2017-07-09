@@ -4,17 +4,10 @@ module.exports = function(io) {
 
     io.on('connection', function (socket) {
 
-
-      socket.on('LogThis', function (data) {
-        console.log("stuff");
-        socket.broadcast.emit('LogThis', data);
-      });
-
       socket.on('insertTextAt', function (data) {
         console.log("text insertion");
         socket.broadcast.emit('insertTextAt', data);
       });
-
 
     });
 
