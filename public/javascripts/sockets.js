@@ -25,10 +25,18 @@ socket.on('insertTextAt', function (data) {
   if (key.length > 1){
     if (key === "Enter"){
       key = '\n';
+      textArea.replaceRange(key, {line, ch});
+    }
+    if (key === "Backspace"){
+      textArea.replaceRange("", {line, ch: ch +1}, {line, ch});
+    }
+    if (key === "Delete"){
+      textArea.replaceRange("", {line, ch},{line, ch : ch + 1});
     }
     else key = ""
+  } else {
+    textArea.replaceRange(key, {line, ch});
   }
-  textArea.replaceRange(key, {line, ch});
 });
 
 socket.on('connect', function () {
