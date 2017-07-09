@@ -1,14 +1,35 @@
 var socket = io.connect();
+var textArea;
 window.onload= function(){
-  var textArea = CodeMirror(document.body, {autofocus: true});
-
-  document.getElementById("test").addEventListener("click",function(){
-    console.log(textArea);
-    console.log(textArea.doc);
-    socket.emit('LogThis','i click button? yes ?');
-  })
+  textArea = CodeMirror(document.body, {autofocus: true,lineNumbers: true});
+  document.getElementsByClassName("CodeMirror")[0].addEventListener("keydown", function(e){
+    line = textArea.getCursor().line;
+    ch = textArea.getCursor().ch;
+    key = e.key;
+    data = {
+      line,
+      ch,
+      key
+    };
+    socket.emit("insertTextAt", data);
+  });
 
 }
+
+socket.on('insertTextAt', function (data) {
+  //if data.key = "enter" '\n'
+  console.log(data);
+  key = data.key;
+  line = data.line;
+  ch = data.ch;
+  if (key.length > 1){
+    if (key === "Enter"){
+      key = '\n';
+    }
+    else key = ""
+  }
+  textArea.replaceRange(key, {line, ch});
+});
 
 socket.on('connect', function () {
     console.log('success');

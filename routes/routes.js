@@ -10,6 +10,11 @@ module.exports = function(io) {
         socket.broadcast.emit('LogThis', data);
       });
 
+      socket.on('insertTextAt', function (data) {
+        console.log("text insertion");
+        socket.broadcast.emit('insertTextAt', data);
+      });
+
 
     });
 
