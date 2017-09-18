@@ -42,5 +42,4 @@ gulp.task('watch', function() {
 gulp.task('default', ['lint', 'sass', 'scripts', 'watch']);*/
 
 gulp.task('travis', [], function (){
-  process.exit(0);
 });
