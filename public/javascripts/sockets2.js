@@ -1,4 +1,4 @@
-var socket = io.connect();
+var socket = io('/new');
 var textArea;
 window.onload= function(){
   textArea = CodeMirror(document.body, {autofocus: true,lineNumbers: true});

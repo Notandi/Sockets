@@ -1,0 +1,13 @@
+doctype html
+html
+  head
+    title= title
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    link(rel='stylesheet', href='/stylesheets/codemirror.css')
+    script(src='/socket.io/socket.io.js')
+    script(src='/javascripts/roomsockets.js')
+    script(src='/javascripts/codemirror.js')
+
+  body
+    h1= title
+    p Welcome to #{title}
