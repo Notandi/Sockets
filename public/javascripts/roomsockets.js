@@ -1,5 +1,7 @@
-var socket = io('/new');
 var textArea;
+var HOST = location.origin.replace(/^http/, 'ws')
+var ws = new WebSocket(HOST);
+console.log(ws);
 window.onload= function(){
   textArea = CodeMirror(document.body, {autofocus: true,lineNumbers: true});
   document.getElementsByClassName("CodeMirror")[0].addEventListener("keydown", function(e){
@@ -11,11 +13,12 @@ window.onload= function(){
       ch,
       key
     };
-    socket.emit("insertTextAt", data);
+    ws.send(JSON.stringify(data));
+    //socket.emit("insertTextAt", data);
   });
 
 }
-
+/*
 socket.on('insertTextAt', function (data) {
   console.log(data);
   key = data.key;
@@ -47,4 +50,4 @@ socket.on('error', function (data) {
 
 socket.on('connect_failed', function (data) {
     console.log(data || 'connect_failed');
-});
+});*/

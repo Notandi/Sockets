@@ -7,7 +7,8 @@
 var app = require('../app');
 var debug = require('debug')('sockets:server');
 var http = require('http');
-var io = app.io
+var WebSocket = require('ws');
+
 /**
  * Get port from environment and store in Express.
  */
@@ -20,8 +21,7 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
-io.attach( server );
-
+var wss = new WebSocket.Server({ server });
 /**
  * Listen on provided port, on all network interfaces.
  */
@@ -77,6 +77,18 @@ function onError(error) {
       throw error;
   }
 }
+
+wss.on('connection', (ws) => {
+  console.log('Client connected');
+  ws.on('close', () => console.log('Client disconnected'));
+  ws.on('message', function incoming(data) {
+    console.log("yes");
+    console.log(data);
+  });
+});
+
+
+
 
 /**
  * Event listener for HTTP server "listening" event.
