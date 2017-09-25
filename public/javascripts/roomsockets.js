@@ -24,10 +24,10 @@ ws.onmessage = ( (message) => {
         textArea.replaceRange(key, {startLine, startCh}, {endLine, endCh});
       }
       if (key === "Backspace"){
-        textArea.replaceRange("", {line : startLine, ch : startCh +1}, {line : endLine,ch : endCh});
+        textArea.replaceRange("", {line : startLine, ch : startCh}, {line : endLine,ch : endCh});
       }
       if (key === "Delete"){
-        textArea.replaceRange("", {line : startLine, ch : startCh},{line : endLine, ch : endCh + 1});
+        textArea.replaceRange("", {line : startLine, ch : startCh},{line : endLine, ch : endCh});
       }
 
     } else {
