@@ -5,7 +5,14 @@ const mongoose = require('mongoose'),
 // File Schema
 //================================
 const FileSchema = new Schema({
-
+	_id: {
+			type: Number,
+			required: true
+		},
+	data: {
+			type: String,
+			required: true
+		}
 },
 {
 	collection: 'file'

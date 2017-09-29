@@ -7,7 +7,7 @@
 var app = require('../app');
 var debug = require('debug')('sockets:server');
 var http = require('http');
-var WebSocket = require('ws');
+var SocketController = require ('../controllers/websockets')
 
 /**
  * Get port from environment and store in Express.
@@ -21,7 +21,7 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
-var wss = new WebSocket.Server({ server });
+var socket = SocketController(server);
 /**
  * Listen on provided port, on all network interfaces.
  */
@@ -78,17 +78,6 @@ function onError(error) {
   }
 }
 
-wss.on('connection', (ws) => {
-  console.log('Client connected');
-  ws.on('close', () => console.log('Client disconnected'));
-  ws.on('message', (data) => {
-    wss.clients.forEach((client) => {
-      if (client !== ws && client.readyState === WebSocket.OPEN) {
-        client.send(data);
-      }
-    });
-  });
-});
 
 
 
