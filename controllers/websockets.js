@@ -7,20 +7,13 @@ const websockets = function (server) {
 
 
   wss.on( 'connection',(ws) => {
+
     console.log('Client connected');
-
-    var data = { "_id" : 1 , "data" : "abcd" };
-
-    file.create(data, (err, small) => {
-      if (err) console.log(err);
-      // saved!
-    });
-
-    console.log(data);
 
     file.findOne({"_id": 1},(err, found) => {
       if (err) console.log(err);
-      console.log(found);
+      console.log(found.data);
+      ws.send(found.data);
     });
 
     ws.on('close', () => console.log('Client.disconnected') );

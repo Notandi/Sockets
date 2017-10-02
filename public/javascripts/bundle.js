@@ -1,3 +1,322 @@
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ (function(module, exports) {
+
+/*Copyright (c) 2013 Tatsuhiko Kubo <cubicdaiya@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.*/
+
+/**
+ * This program is checked with node.js
+ */
+
+/**
+ * The algorithm implemented here is based on "An O(NP) Sequence Comparison Algorithm"
+ * by described by Sun Wu, Udi Manber and Gene Myers
+*/
+
+exports.Diff = function (a_, b_) {
+    var a          = a_,
+        b          = b_,
+        m          = a.length,
+        n          = b.length,
+        reverse    = false,
+        ed         = null,
+        offset     = m + 1,
+        path       = [],
+        pathposi   = [],
+        ses        = [],
+        lcs        = "",
+        SES_DELETE = -1,
+        SES_COMMON = 0,
+        SES_ADD    = 1;
+
+    var tmp1,
+        tmp2;
+
+    var init = function () {
+        if (m >= n) {
+            tmp1    = a;
+            tmp2    = m;
+            a       = b;
+            b       = tmp1;
+            m       = n;
+            n       = tmp2;
+            reverse = true;
+            offset  = m + 1;
+        }
+    };
+
+    var P = function (x, y, k) {
+        return {
+            'x' : x,
+            'y' : y,
+            'k' : k,
+        };
+    };
+
+    var seselem = function (elem, t) {
+        return {
+            'elem' : elem,
+            't'    : t,
+        };
+    };
+
+    var snake = function (k, p, pp) {
+        var r, x, y;
+        if (p > pp) {
+            r = path[k-1+offset];
+        } else {
+            r = path[k+1+offset];
+        }
+
+        y = Math.max(p, pp);
+        x = y - k;
+        while (x < m && y < n && a[x] === b[y]) {
+            ++x;
+            ++y;
+        }
+
+        path[k+offset] = pathposi.length;
+        pathposi[pathposi.length] = new P(x, y, r);
+        return y;
+    };
+
+    var recordseq = function (epc) {
+        var x_idx, y_idx, px_idx, py_idx, i;
+        x_idx  = y_idx  = 1;
+        px_idx = py_idx = 0;
+        for (i=epc.length-1;i>=0;--i) {
+            while(px_idx < epc[i].x || py_idx < epc[i].y) {
+                if (epc[i].y - epc[i].x > py_idx - px_idx) {
+                    if (reverse) {
+                        ses[ses.length] = new seselem(b[py_idx], SES_DELETE);
+                    } else {
+                        ses[ses.length] = new seselem(b[py_idx], SES_ADD);
+                    }
+                    ++y_idx;
+                    ++py_idx;
+                } else if (epc[i].y - epc[i].x < py_idx - px_idx) {
+                    if (reverse) {
+                        ses[ses.length] = new seselem(a[px_idx], SES_ADD);
+                    } else {
+                        ses[ses.length] = new seselem(a[px_idx], SES_DELETE);
+                    }
+                    ++x_idx;
+                    ++px_idx;
+                } else {
+                    ses[ses.length] = new seselem(a[px_idx], SES_COMMON);
+                    lcs += a[px_idx];
+                    ++x_idx;
+                    ++y_idx;
+                    ++px_idx;
+                    ++py_idx;
+                }
+            }
+        }
+    };
+
+    init();
+
+    return {
+        SES_DELETE : -1,
+        SES_COMMON :  0,
+        SES_ADD    :  1,
+        editdistance : function () {
+            return ed;
+        },
+        getlcs : function () {
+            return lcs;
+        },
+        getses : function () {
+            return ses;
+        },
+        compose : function () {
+            var delta, size, fp, p, r, epc, i, k;
+            delta  = n - m;
+            size   = m + n + 3;
+            fp     = {};
+            for (i=0;i<size;++i) {
+                fp[i] = -1;
+                path[i] = -1;
+            }
+            p = -1;
+            do {
+                ++p;
+                for (k=-p;k<=delta-1;++k) {
+                    fp[k+offset] = snake(k, fp[k-1+offset]+1, fp[k+1+offset]);
+                }
+                for (k=delta+p;k>=delta+1;--k) {
+                    fp[k+offset] = snake(k, fp[k-1+offset]+1, fp[k+1+offset]);
+                }
+                fp[delta+offset] = snake(delta, fp[delta-1+offset]+1, fp[delta+1+offset]);
+            } while (fp[delta+offset] !== n);
+
+            ed = delta + 2 * p;
+
+            r = path[delta+offset];
+
+            epc  = [];
+            while (r !== -1) {
+                epc[epc.length] = new P(pathposi[r].x, pathposi[r].y, null);
+                r = pathposi[r].k;
+            }
+            recordseq(epc);
+        }
+    };
+};
+
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+__webpack_require__(2);
+module.exports = __webpack_require__(0);
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+let textArea;
+const HOST = location.origin.replace(/^http/, 'ws')
+const ws = new WebSocket(HOST);
+var CodeMirror = __webpack_require__(3);
+
+
+// Handles the socket messages sent to the client from the server
+ws.onmessage = ( (message) => {
+
+})
+
+// Sets up CodeMirror on the front end and listens to changes to it
+// sends change data to the server using websockets
+window.onload= () => {
+
+  textArea = CodeMirror(document.body, {autofocus: true,lineNumbers: true});
+
+  let oldText = textArea.getValue();
+  let newText;
+
+  document.getElementsByClassName("CodeMirror")[0].addEventListener("keyup",function(e){
+
+    newText = textArea.getValue();
+    console.log(oldText);
+    console.log(newText);
+
+    var onp = __webpack_require__(0);
+
+    var diff = new onp.Diff("abcd", "aecd");
+    diff.compose();
+    console.log("editdistance:" + diff.editdistance());
+    console.log("lcs:" + diff.getlcs());
+    console.log("ses");
+
+    var i   = 0;
+    var ses = diff.getses();
+    for (i=0;i<ses.length;++i) {
+        if (ses[i].t === diff.SES_COMMON) {
+            console.log(" " + ses[i].elem);
+        } else if (ses[i].t === diff.SES_DELETE) {
+            console.log("-" + ses[i].elem);
+        } else if (ses[i].t === diff.SES_ADD) {
+            console.log("+" + ses[i].elem);
+        }
+    }
+
+    oldText = newText;
+
+
+  })
+}
+
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: http://codemirror.net/LICENSE
 
@@ -8,7 +327,7 @@
 // at http://marijnhaverbeke.nl/blog/#cm-internals .
 
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+	 true ? module.exports = factory() :
 	typeof define === 'function' && define.amd ? define(factory) :
 	(global.CodeMirror = factory());
 }(this, (function () { 'use strict';
@@ -5176,7 +5495,7 @@ function makeChange(doc, change, ignoreReadOnly) {
   var split = sawReadOnlySpans && !ignoreReadOnly && removeReadOnlyRanges(doc, change.from, change.to);
   if (split) {
     for (var i = split.length - 1; i >= 0; --i)
-      { makeChangeInner(doc, {from: split[i].from, to: split[i].to, text: i ? [""] : change.text}); }
+      { makeChangeInner(doc, {from: split[i].from, to: split[i].to, text: i ? [""] : change.text, origin: change.origin}); }
   } else {
     makeChangeInner(doc, change);
   }
@@ -6792,15 +7111,15 @@ var commands = {
     {origin: "+move", bias: -1}
   ); },
   goLineRight: function (cm) { return cm.extendSelectionsBy(function (range) {
-    var top = cm.charCoords(range.head, "div").top + 5;
+    var top = cm.cursorCoords(range.head, "div").top + 5;
     return cm.coordsChar({left: cm.display.lineDiv.offsetWidth + 100, top: top}, "div")
   }, sel_move); },
   goLineLeft: function (cm) { return cm.extendSelectionsBy(function (range) {
-    var top = cm.charCoords(range.head, "div").top + 5;
+    var top = cm.cursorCoords(range.head, "div").top + 5;
     return cm.coordsChar({left: 0, top: top}, "div")
   }, sel_move); },
   goLineLeftSmart: function (cm) { return cm.extendSelectionsBy(function (range) {
-    var top = cm.charCoords(range.head, "div").top + 5;
+    var top = cm.cursorCoords(range.head, "div").top + 5;
     var pos = cm.coordsChar({left: 0, top: top}, "div");
     if (pos.ch < cm.getLine(pos.line).search(/\S/)) { return lineStartSmart(cm, range.head) }
     return pos
@@ -8355,6 +8674,8 @@ var addEditorMethods = function(CodeMirror) {
     }),
 
     operation: function(f){return runInOp(this, f)},
+    startOperation: function(){return startOperation(this)},
+    endOperation: function(){return endOperation(this)},
 
     refresh: methodOp(function() {
       var oldHeight = this.display.cachedTextHeight;
@@ -8898,7 +9219,7 @@ function domTextBetween(cm, from, to, fromLine, toLine) {
       var markerID = node.getAttribute("cm-marker"), range$$1;
       if (markerID) {
         var found = cm.findMarks(Pos(fromLine, 0), Pos(toLine + 1, 0), recognizeMarker(+markerID));
-        if (found.length && (range$$1 = found[0].find()))
+        if (found.length && (range$$1 = found[0].find(0)))
           { addText(getBetween(cm.doc, range$$1.from, range$$1.to).join(lineSep)); }
         return
       }
@@ -9007,9 +9328,6 @@ var TextareaInput = function(cm) {
   this.pollingFast = false;
   // Self-resetting timeout for the poller
   this.polling = new Delayed();
-  // Tracks when input.reset has punted to just putting a short
-  // string into the textarea instead of the full selection.
-  this.inaccurateSelection = false;
   // Used to work around IE issue with selection being forgotten when focus moves away from textarea
   this.hasSelection = false;
   this.composing = null;
@@ -9046,12 +9364,6 @@ TextareaInput.prototype.init = function (display) {
     if (signalDOMEvent(cm, e)) { return }
     if (cm.somethingSelected()) {
       setLastCopied({lineWise: false, text: cm.getSelections()});
-      if (input.inaccurateSelection) {
-        input.prevInput = "";
-        input.inaccurateSelection = false;
-        te.value = lastCopied.text.join("\n");
-        selectInput(te);
-      }
     } else if (!cm.options.lineWiseCopyCut) {
       return
     } else {
@@ -9130,13 +9442,10 @@ TextareaInput.prototype.showSelection = function (drawn) {
 // when not typing and nothing is selected)
 TextareaInput.prototype.reset = function (typing) {
   if (this.contextMenuPending || this.composing) { return }
-  var minimal, selected, cm = this.cm, doc = cm.doc;
+  var cm = this.cm;
   if (cm.somethingSelected()) {
     this.prevInput = "";
-    var range$$1 = doc.sel.primary();
-    minimal = hasCopyEvent &&
-      (range$$1.to().line - range$$1.from().line > 100 || (selected = cm.getSelection()).length > 1000);
-    var content = minimal ? "-" : selected || cm.getSelection();
+    var content = cm.getSelection();
     this.textarea.value = content;
     if (cm.state.focused) { selectInput(this.textarea); }
     if (ie && ie_version >= 9) { this.hasSelection = content; }
@@ -9144,7 +9453,6 @@ TextareaInput.prototype.reset = function (typing) {
     this.prevInput = this.textarea.value = "";
     if (ie && ie_version >= 9) { this.hasSelection = null; }
   }
-  this.inaccurateSelection = minimal;
 };
 
 TextareaInput.prototype.getField = function () { return this.textarea };
@@ -9495,8 +9803,12 @@ CodeMirror$1.fromTextArea = fromTextArea;
 
 addLegacyProps(CodeMirror$1);
 
-CodeMirror$1.version = "5.27.4";
+CodeMirror$1.version = "5.29.0";
 
 return CodeMirror$1;
 
 })));
+
+
+/***/ })
+/******/ ]);
