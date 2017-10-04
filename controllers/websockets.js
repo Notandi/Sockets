@@ -1,4 +1,4 @@
-var file = require('../models/file')
+var database = require('./database');
 var WebSocket = require('ws');
 
 const websockets = function (server) {
@@ -7,25 +7,34 @@ const websockets = function (server) {
 
 
   wss.on( 'connection',(ws) => {
+    db = new database();
 
     console.log('Client connected');
-
-    file.findOne({"_id": 1},(err, found) => {
-      if (err) console.log(err);
-      console.log(found.data);
-      ws.send(found.data);
-    });
+    db.getById(1).then(
+      (result) => {
+        message = {version: result.version, data: result.data, type:"init"};
+        ws.send(JSON.stringify(message));
+      }
+    )
 
     ws.on('close', () => console.log('Client.disconnected') );
 
-    ws.on('message', (data) => {
-      wss.clients.forEach( (client) => {
+    ws.on('message', (msg) => {
+      if (data.type === "update"){
 
-        if (client !== ws && client.readyState === WebSocket.OPEN) {
-          client.send(data);
-        }
+      } else if (data.type === "reqUpdate"){
 
-      });
+        db.getById(1).then(
+          (result) => {
+            ws.send(result.data);
+          }
+        )
+
+      } else if (data.type === ""){
+
+      }
+
+
     });
 
   });

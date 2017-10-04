@@ -5,8 +5,13 @@ var CodeMirror = require('codemirror');
 
 
 // Handles the socket messages sent to the client from the server
-ws.onmessage = ( (message) => {
-
+ws.onmessage = ( (msg) => {
+  message = JSON.parse(msg.data);
+  if (message.type === "init" ){
+    console.log("hi");
+    textArea.setValue(message.data);
+  }
+  console.log(message);
 })
 
 // Sets up CodeMirror on the front end and listens to changes to it
@@ -26,7 +31,7 @@ window.onload= () => {
 
     var onp = require('./onp.js');
 
-    var diff = new onp.Diff("abcd", "aecd");
+    var diff = new onp.Diff(oldText, newText);
     diff.compose();
     console.log("editdistance:" + diff.editdistance());
     console.log("lcs:" + diff.getlcs());
@@ -34,7 +39,9 @@ window.onload= () => {
 
     var i   = 0;
     var ses = diff.getses();
+
     for (i=0;i<ses.length;++i) {
+      console.log(i);
         if (ses[i].t === diff.SES_COMMON) {
             console.log(" " + ses[i].elem);
         } else if (ses[i].t === diff.SES_DELETE) {

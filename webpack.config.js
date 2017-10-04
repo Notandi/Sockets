@@ -6,7 +6,7 @@ module.exports = {
     './src/onp.js'
   ]},
   output: {
-    path: path.join(__dirname,"public/javascripts"),
+    path: path.join(__dirname, "public/javascripts"),
     filename: "[name].js"
   }
 };
