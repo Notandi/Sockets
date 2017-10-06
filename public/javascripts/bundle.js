@@ -65,7 +65,10 @@
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
 
 /*Copyright (c) 2013 Tatsuhiko Kubo <cubicdaiya@gmail.com>
 
@@ -97,58 +100,57 @@ THE SOFTWARE.*/
 */
 
 exports.Diff = function (a_, b_) {
-    var a          = a_,
-        b          = b_,
-        m          = a.length,
-        n          = b.length,
-        reverse    = false,
-        ed         = null,
-        offset     = m + 1,
-        path       = [],
-        pathposi   = [],
-        ses        = [],
-        lcs        = "",
+    var a = a_,
+        b = b_,
+        m = a.length,
+        n = b.length,
+        reverse = false,
+        ed = null,
+        offset = m + 1,
+        path = [],
+        pathposi = [],
+        ses = [],
+        lcs = "",
         SES_DELETE = -1,
         SES_COMMON = 0,
-        SES_ADD    = 1;
+        SES_ADD = 1;
 
-    var tmp1,
-        tmp2;
+    var tmp1, tmp2;
 
-    var init = function () {
+    var init = function init() {
         if (m >= n) {
-            tmp1    = a;
-            tmp2    = m;
-            a       = b;
-            b       = tmp1;
-            m       = n;
-            n       = tmp2;
+            tmp1 = a;
+            tmp2 = m;
+            a = b;
+            b = tmp1;
+            m = n;
+            n = tmp2;
             reverse = true;
-            offset  = m + 1;
+            offset = m + 1;
         }
     };
 
-    var P = function (x, y, k) {
+    var P = function P(x, y, k) {
         return {
-            'x' : x,
-            'y' : y,
-            'k' : k,
+            'x': x,
+            'y': y,
+            'k': k
         };
     };
 
-    var seselem = function (elem, t) {
+    var seselem = function seselem(elem, t) {
         return {
-            'elem' : elem,
-            't'    : t,
+            'elem': elem,
+            't': t
         };
     };
 
-    var snake = function (k, p, pp) {
+    var snake = function snake(k, p, pp) {
         var r, x, y;
         if (p > pp) {
-            r = path[k-1+offset];
+            r = path[k - 1 + offset];
         } else {
-            r = path[k+1+offset];
+            r = path[k + 1 + offset];
         }
 
         y = Math.max(p, pp);
@@ -158,17 +160,17 @@ exports.Diff = function (a_, b_) {
             ++y;
         }
 
-        path[k+offset] = pathposi.length;
+        path[k + offset] = pathposi.length;
         pathposi[pathposi.length] = new P(x, y, r);
         return y;
     };
 
-    var recordseq = function (epc) {
+    var recordseq = function recordseq(epc) {
         var x_idx, y_idx, px_idx, py_idx, i;
-        x_idx  = y_idx  = 1;
+        x_idx = y_idx = 1;
         px_idx = py_idx = 0;
-        for (i=epc.length-1;i>=0;--i) {
-            while(px_idx < epc[i].x || py_idx < epc[i].y) {
+        for (i = epc.length - 1; i >= 0; --i) {
+            while (px_idx < epc[i].x || py_idx < epc[i].y) {
                 if (epc[i].y - epc[i].x > py_idx - px_idx) {
                     if (reverse) {
                         ses[ses.length] = new seselem(b[py_idx], SES_DELETE);
@@ -200,44 +202,44 @@ exports.Diff = function (a_, b_) {
     init();
 
     return {
-        SES_DELETE : -1,
-        SES_COMMON :  0,
-        SES_ADD    :  1,
-        editdistance : function () {
+        SES_DELETE: -1,
+        SES_COMMON: 0,
+        SES_ADD: 1,
+        editdistance: function editdistance() {
             return ed;
         },
-        getlcs : function () {
+        getlcs: function getlcs() {
             return lcs;
         },
-        getses : function () {
+        getses: function getses() {
             return ses;
         },
-        compose : function () {
+        compose: function compose() {
             var delta, size, fp, p, r, epc, i, k;
-            delta  = n - m;
-            size   = m + n + 3;
-            fp     = {};
-            for (i=0;i<size;++i) {
+            delta = n - m;
+            size = m + n + 3;
+            fp = {};
+            for (i = 0; i < size; ++i) {
                 fp[i] = -1;
                 path[i] = -1;
             }
             p = -1;
             do {
                 ++p;
-                for (k=-p;k<=delta-1;++k) {
-                    fp[k+offset] = snake(k, fp[k-1+offset]+1, fp[k+1+offset]);
+                for (k = -p; k <= delta - 1; ++k) {
+                    fp[k + offset] = snake(k, fp[k - 1 + offset] + 1, fp[k + 1 + offset]);
                 }
-                for (k=delta+p;k>=delta+1;--k) {
-                    fp[k+offset] = snake(k, fp[k-1+offset]+1, fp[k+1+offset]);
+                for (k = delta + p; k >= delta + 1; --k) {
+                    fp[k + offset] = snake(k, fp[k - 1 + offset] + 1, fp[k + 1 + offset]);
                 }
-                fp[delta+offset] = snake(delta, fp[delta-1+offset]+1, fp[delta+1+offset]);
-            } while (fp[delta+offset] !== n);
+                fp[delta + offset] = snake(delta, fp[delta - 1 + offset] + 1, fp[delta + 1 + offset]);
+            } while (fp[delta + offset] !== n);
 
             ed = delta + 2 * p;
 
-            r = path[delta+offset];
+            r = path[delta + offset];
 
-            epc  = [];
+            epc = [];
             while (r !== -1) {
                 epc[epc.length] = new P(pathposi[r].x, pathposi[r].y, null);
                 r = pathposi[r].k;
@@ -246,7 +248,6 @@ exports.Diff = function (a_, b_) {
         }
     };
 };
-
 
 /***/ }),
 /* 1 */
@@ -260,36 +261,47 @@ module.exports = __webpack_require__(0);
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
-let textArea;
-const HOST = location.origin.replace(/^http/, 'ws')
-const ws = new WebSocket(HOST);
-var CodeMirror = __webpack_require__(3);
+"use strict";
 
+
+var textArea = void 0;
+var HOST = location.origin.replace(/^http/, 'ws');
+var ws = new WebSocket(HOST);
+var CodeMirror = __webpack_require__(3);
+var id = 1;
+var oldText = void 0;
+var newText = void 0;
+
+// Sends the first message to retrieve the data for the id
+ws.onopen = function () {
+
+  var initmessage = { id: id, type: "init" };
+
+  ws.send(JSON.stringify(initmessage));
+};
 
 // Handles the socket messages sent to the client from the server
-ws.onmessage = ( (msg) => {
-  message = JSON.parse(msg.data);
-  if (message.type === "init" ){
-    console.log("hi");
+ws.onmessage = function (msg) {
+  var message = JSON.parse(msg.data);
+
+  if (message.type === "init") {
+
     textArea.setValue(message.data);
-  }
-  console.log(message);
-})
+    oldText = textArea.getValue();
+  } else if (message.type === "reqUpdate") {} else if (message.type === "update") {}
+};
 
 // Sets up CodeMirror on the front end and listens to changes to it
 // sends change data to the server using websockets
-window.onload= () => {
+window.onload = function () {
 
-  textArea = CodeMirror(document.body, {autofocus: true,lineNumbers: true});
+  textArea = CodeMirror(document.body, { autofocus: true, lineNumbers: true });
 
-  let oldText = textArea.getValue();
-  let newText;
+  oldText = textArea.getValue();
 
-  document.getElementsByClassName("CodeMirror")[0].addEventListener("keyup",function(e){
+  document.getElementsByClassName("CodeMirror")[0].addEventListener("keyup", function (e) {
 
     newText = textArea.getValue();
-    console.log(oldText);
-    console.log(newText);
 
     var onp = __webpack_require__(0);
 
@@ -299,26 +311,23 @@ window.onload= () => {
     console.log("lcs:" + diff.getlcs());
     console.log("ses");
 
-    var i   = 0;
+    var i = 0;
     var ses = diff.getses();
 
-    for (i=0;i<ses.length;++i) {
+    for (i = 0; i < ses.length; ++i) {
       console.log(i);
-        if (ses[i].t === diff.SES_COMMON) {
-            console.log(" " + ses[i].elem);
-        } else if (ses[i].t === diff.SES_DELETE) {
-            console.log("-" + ses[i].elem);
-        } else if (ses[i].t === diff.SES_ADD) {
-            console.log("+" + ses[i].elem);
-        }
+      if (ses[i].t === diff.SES_COMMON) {
+        console.log(" " + ses[i].elem);
+      } else if (ses[i].t === diff.SES_DELETE) {
+        console.log("-" + ses[i].elem);
+      } else if (ses[i].t === diff.SES_ADD) {
+        console.log("+" + ses[i].elem);
+      }
     }
 
     oldText = newText;
-
-
-  })
-}
-
+  });
+};
 
 /***/ }),
 /* 3 */

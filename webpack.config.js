@@ -8,5 +8,12 @@ module.exports = {
   output: {
     path: path.join(__dirname, "public/javascripts"),
     filename: "[name].js"
-  }
+  },
+  module: {
+         loaders: [{
+             test: /\.js$/,
+             exclude: /node_modules/,
+             loader: 'babel-loader'
+         }]
+     }
 };

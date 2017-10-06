@@ -1,36 +1,35 @@
-var database = require('./database');
-var WebSocket = require('ws');
+const database = require('./database');
+const WebSocket = require('ws');
 
 const websockets = function (server) {
 
-  var wss = new WebSocket.Server({ server });
+  let wss = new WebSocket.Server({ server });
 
 
   wss.on( 'connection',(ws) => {
     db = new database();
 
     console.log('Client connected');
-    db.getById(1).then(
-      (result) => {
-        message = {version: result.version, data: result.data, type:"init"};
-        ws.send(JSON.stringify(message));
-      }
-    )
+
 
     ws.on('close', () => console.log('Client.disconnected') );
 
     ws.on('message', (msg) => {
-      if (data.type === "update"){
 
-      } else if (data.type === "reqUpdate"){
+      let message = JSON.parse(msg);
 
-        db.getById(1).then(
+      if (message.type === "update"){
+
+      } else if (message.type === "reqUpdate"){
+
+      } else if (message.type === "init"){
+
+        db.getById(message.id).then(
           (result) => {
-            ws.send(result.data);
+            let message = {version: result.version, data: result.data, type:"init"};
+            ws.send(JSON.stringify(message));
           }
         )
-
-      } else if (data.type === ""){
 
       }
 
